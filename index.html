@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -215,7 +215,7 @@
 
         .indicator-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 100px 40px;
+            grid-template-columns: 2fr 1fr 100px 80px 40px;
             align-items: center;
             gap: 15px;
             padding: 12px;
@@ -234,9 +234,50 @@
             font-weight: 500;
         }
 
+        .indicator-name a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .indicator-name a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
         .indicator-hint {
             color: var(--text-secondary);
             font-size: 0.85rem;
+        }
+
+        .today-value-input {
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 5px 8px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-weight: 500;
+            color: var(--accent-color);
+            min-width: 80px;
+            transition: all 0.2s ease;
+        }
+
+        .today-value-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .today-value-display {
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 5px 8px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 6px;
+            font-weight: 500;
+            color: var(--accent-color);
+            min-width: 80px;
         }
 
         .score-buttons {
@@ -686,6 +727,11 @@
             .drawer {
                 padding: 20px;
             }
+            
+            .today-value-input,
+            .today-value-display {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -828,67 +874,195 @@
     </div>
 
     <script>
-        // 指标配置
+        // 指标配置（简化版本，只保留基本信息）
         const INDICATORS = [
             {
                 category: '链上数据 (40%)',
                 weight: 40,
                 items: [
-                    { id: 'urpd', name: 'URPD筹码成本', hint: '持仓成本分布', weight: 5 },
-                    { id: 'cost_base', name: '成本基础分布', hint: 'GlassNode版', weight: 5 },
-                    { id: 'mining_price', name: '挖矿平均价格', hint: 'LTH/STH', weight: 5 },
-                    { id: 'etf_flow', name: '现货ETF净流', hint: '资金流入流出', weight: 5 },
-                    { id: 'region_flow', name: '美亚资金流', hint: '地区资金流向', weight: 4 },
-                    { id: 'whale_heat', name: '巨鲸热力图', hint: '派发/吸筹', weight: 3 },
-                    { id: 'nrpl', name: 'NRPL已实现盈利', hint: '盈利亏损状态', weight: 3 },
-                    { id: 'network_profit', name: '网络实现盈利', hint: '30日均值', weight: 3 },
-                    { id: 'profit_pct', name: '盈利百分比', hint: '持仓盈利占比', weight: 2 },
-                    { id: 'lth_position', name: 'LTH持仓', hint: '长线持有者', weight: 3 },
-                    { id: 'total_position', name: '全网持仓量', hint: 'BTC/ETH', weight: 2 }
+                    { 
+                        id: 'urpd', 
+                        name: 'URPD筹码成本', 
+                        hint: '持仓成本分布', 
+                        weight: 5,
+                        link: 'https://glassnode.com/indicators/urpd'
+                    },
+                    { 
+                        id: 'cost_base', 
+                        name: '成本基础分布', 
+                        hint: 'GlassNode版', 
+                        weight: 5,
+                        link: 'https://glassnode.com/indicators/cost-basis'
+                    },
+                    { 
+                        id: 'mining_price', 
+                        name: '挖矿平均价格', 
+                        hint: 'LTH/STH', 
+                        weight: 5,
+                        link: 'https://glassnode.com/indicators/mining-price'
+                    },
+                    { 
+                        id: 'etf_flow', 
+                        name: '现货ETF净流', 
+                        hint: '资金流入流出', 
+                        weight: 5,
+                        link: 'https://glassnode.com/indicators/etf-flow'
+                    },
+                    { 
+                        id: 'region_flow', 
+                        name: '美亚资金流', 
+                        hint: '地区资金流向', 
+                        weight: 4,
+                        link: 'https://glassnode.com/indicators/region-flow'
+                    },
+                    { 
+                        id: 'whale_heat', 
+                        name: '巨鲸热力图', 
+                        hint: '派发/吸筹', 
+                        weight: 3,
+                        link: 'https://glassnode.com/indicators/whale-heat'
+                    },
+                    { 
+                        id: 'nrpl', 
+                        name: 'NRPL已实现盈利', 
+                        hint: '盈利亏损状态', 
+                        weight: 3,
+                        link: 'https://glassnode.com/indicators/nrpl'
+                    },
+                    { 
+                        id: 'network_profit', 
+                        name: '网络实现盈利', 
+                        hint: '30日均值', 
+                        weight: 3,
+                        link: 'https://glassnode.com/indicators/network-profit'
+                    },
+                    { 
+                        id: 'profit_pct', 
+                        name: '盈利百分比', 
+                        hint: '持仓盈利占比', 
+                        weight: 2,
+                        link: 'https://glassnode.com/indicators/profit-percentage'
+                    },
+                    { 
+                        id: 'lth_position', 
+                        name: 'LTH持仓', 
+                        hint: '长线持有者', 
+                        weight: 3,
+                        link: 'https://glassnode.com/indicators/lth-position'
+                    },
+                    { 
+                        id: 'total_position', 
+                        name: '全网持仓量', 
+                        hint: 'BTC/ETH', 
+                        weight: 2,
+                        link: 'https://glassnode.com/indicators/total-position'
+                    }
                 ]
             },
             {
                 category: '技术指标 (30%)',
                 weight: 30,
                 items: [
-                    { id: 'macd', name: 'MACD', hint: '趋势强弱', weight: 10 },
-                    { id: 'kline', name: 'K线形态', hint: '形态识别', weight: 10 },
-                    { id: 'rsi', name: 'RSI', hint: '超买超卖', weight: 6 },
-                    { id: 'volume', name: 'VOL成交量', hint: '交易活跃度', weight: 4 }
+                    { 
+                        id: 'macd', 
+                        name: 'MACD', 
+                        hint: '趋势强弱', 
+                        weight: 10,
+                        link: 'https://tradingview.com/indicators/macd'
+                    },
+                    { 
+                        id: 'kline', 
+                        name: 'K线形态', 
+                        hint: '形态识别', 
+                        weight: 10,
+                        link: 'https://tradingview.com/indicators/kline-patterns'
+                    },
+                    { 
+                        id: 'rsi', 
+                        name: 'RSI', 
+                        hint: '超买超卖', 
+                        weight: 6,
+                        link: 'https://tradingview.com/indicators/rsi'
+                    },
+                    { 
+                        id: 'volume', 
+                        name: 'VOL成交量', 
+                        hint: '交易活跃度', 
+                        weight: 4,
+                        link: 'https://tradingview.com/indicators/volume'
+                    }
                 ]
             },
             {
                 category: '情绪指标 (20%)',
                 weight: 20,
                 items: [
-                    { id: 'fear_greed', name: '贪婪恐慌指数', hint: '市场情绪', weight: 8 },
-                    { id: 'bull_confidence', name: '牛市信心指数', hint: '多头信心', weight: 6 },
-                    { id: 'lth_nupl', name: 'LTH恐惧指数', hint: 'NUPL', weight: 6 }
+                    { 
+                        id: 'fear_greed', 
+                        name: '贪婪恐慌指数', 
+                        hint: '市场情绪', 
+                        weight: 8,
+                        link: 'https://alternative.me/crypto/fear-and-greed-index/'
+                    },
+                    { 
+                        id: 'bull_confidence', 
+                        name: '牛市信心指数', 
+                        hint: '多头信心', 
+                        weight: 6,
+                        link: 'https://tradingview.com/indicators/bull-confidence'
+                    },
+                    { 
+                        id: 'lth_nupl', 
+                        name: 'LTH恐惧指数', 
+                        hint: 'NUPL', 
+                        weight: 6,
+                        link: 'https://glassnode.com/indicators/lth-nupl'
+                    }
                 ]
             },
             {
                 category: '市场环境 (10%)',
                 weight: 10,
                 items: [
-                    { id: 'altseason', name: '山寨季指数', hint: '资金轮动', weight: 4 },
-                    { id: 'mvrv', name: 'MVRV极端偏差', hint: '估值区间', weight: 3 },
-                    { id: 'btc_demand', name: 'BTC需求', hint: '30日均值', weight: 3 }
+                    { 
+                        id: 'altseason', 
+                        name: '山寨季指数', 
+                        hint: '资金轮动', 
+                        weight: 4,
+                        link: 'https://blockchaincenter.net/altcoin-season-index/'
+                    },
+                    { 
+                        id: 'mvrv', 
+                        name: 'MVRV极端偏差', 
+                        hint: '估值区间', 
+                        weight: 3,
+                        link: 'https://glassnode.com/indicators/mvrv'
+                    },
+                    { 
+                        id: 'btc_demand', 
+                        name: 'BTC需求', 
+                        hint: '30日均值', 
+                        weight: 3,
+                        link: 'https://glassnode.com/indicators/btc-demand'
+                    }
                 ]
             }
         ];
 
         // 数据存储
         let scores = {};
+        let todayValues = {}; // 存储今日数值
         let radarChart = null;
         let historyLineChart = null;
         let trendChart = null;
         let currentBTCPrice = 0;
         let isReadonlyMode = false;
 
-        // 初始化分数
+        // 初始化分数和今日数值
         INDICATORS.forEach(cat => {
             cat.items.forEach(item => {
                 scores[item.id] = 0;
+                todayValues[item.id] = ''; // 初始化为空
             });
         });
 
@@ -906,16 +1080,14 @@
                         scores = decodedData.scores;
                     }
                     
+                    // 加载今日数值
+                    if (decodedData.todayValues) {
+                        todayValues = decodedData.todayValues;
+                    }
+                    
                     // 加载历史记录
                     if (decodedData.history) {
                         localStorage.setItem('btc_indicator_history', JSON.stringify(decodedData.history));
-                    }
-                    
-                    // 加载单指标历史
-                    if (decodedData.indicatorHistory) {
-                        Object.entries(decodedData.indicatorHistory).forEach(([key, value]) => {
-                            localStorage.setItem(key, JSON.stringify(value));
-                        });
                     }
                     
                     // 设置只读模式
@@ -933,8 +1105,11 @@
         // 禁用编辑模式
         function disableEditMode() {
             // 禁用保存和重置按钮
-            document.querySelectorAll('.btn-primary, .score-btn').forEach(btn => {
+            document.querySelectorAll('.btn-primary, .score-btn, .today-value-input').forEach(btn => {
                 btn.style.pointerEvents = 'none';
+                if (btn.classList.contains('today-value-input')) {
+                    btn.readOnly = true;
+                }
             });
         }
 
@@ -958,9 +1133,20 @@
                         ${category.items.map(item => `
                             <div class="indicator-row">
                                 <div>
-                                    <div class="indicator-name">${item.name}</div>
+                                    <div class="indicator-name">
+                                        <a href="${item.link}" target="_blank" title="点击查看数据源">${item.name}</a>
+                                    </div>
                                     <div class="indicator-hint">${item.hint} (${item.weight}%)</div>
                                 </div>
+                                ${isReadonlyMode ? 
+                                    `<div class="today-value-display">${todayValues[item.id] || '--'}</div>` : 
+                                    `<input type="text" 
+                                            class="today-value-input" 
+                                            placeholder="查看后填写" 
+                                            value="${todayValues[item.id] || ''}"
+                                            onchange="updateTodayValue('${item.id}', this.value)"
+                                            title="点击指标名称查看数据源后，在此填写今日数值">`
+                                }
                                 <div class="score-buttons">
                                     <button class="score-btn negative ${scores[item.id] === -1 ? 'active' : ''}" 
                                             onclick="setScore('${item.id}', -1)" ${isReadonlyMode ? 'disabled' : ''}>-1</button>
@@ -981,6 +1167,15 @@
                 `;
                 panel.appendChild(categoryDiv);
             });
+        }
+
+        // 更新今日数值
+        function updateTodayValue(indicatorId, value) {
+            if (isReadonlyMode) {
+                alert('⚠️ 只读模式：这是一个分享快照，无法修改数据');
+                return;
+            }
+            todayValues[indicatorId] = value.trim();
         }
 
         // 设置分数
@@ -1113,8 +1308,6 @@
             if (event) event.stopPropagation();
             
             try {
-                console.log('🔄 开始生成分享链接...');
-                
                 const shareLinkBox = document.getElementById('shareLinkBox');
                 shareLinkBox.classList.add('active');
                 document.getElementById('shareLink').textContent = '⏳ 正在生成，请稍候...';
@@ -1123,6 +1316,7 @@
                     try {
                         const shareData = {
                             scores: scores,
+                            todayValues: todayValues, // 包含今日数值
                             history: JSON.parse(localStorage.getItem('btc_indicator_history') || '[]').slice(0, 10),
                             indicatorHistory: {}
                         };
@@ -1142,8 +1336,6 @@
                         const baseUrl = window.location.href.split('?')[0];
                         const shareLink = `${baseUrl}?data=${encodedData}`;
                         
-                        console.log('✅ 链接长度:', shareLink.length);
-
                         document.getElementById('shareLink').textContent = shareLink;
                         
                     } catch (error) {
@@ -1180,6 +1372,7 @@
         function downloadSnapshot() {
             const shareData = {
                 scores: scores,
+                todayValues: todayValues, // 包含今日数值
                 history: JSON.parse(localStorage.getItem('btc_indicator_history') || '[]'),
                 indicatorHistory: {}
             };
@@ -1201,6 +1394,7 @@
                     window.addEventListener('DOMContentLoaded', function() {
                         const sharedData = JSON.parse(atob('${encodedData}'));
                         if (sharedData.scores) scores = sharedData.scores;
+                        if (sharedData.todayValues) todayValues = sharedData.todayValues;
                         if (sharedData.history) localStorage.setItem('btc_indicator_history', JSON.stringify(sharedData.history));
                         if (sharedData.indicatorHistory) {
                             Object.entries(sharedData.indicatorHistory).forEach(([key, value]) => {
@@ -1232,6 +1426,7 @@
             const exportData = {
                 exportTime: new Date().toLocaleString('zh-CN'),
                 scores: scores,
+                todayValues: todayValues, // 包含今日数值
                 totalScore: Object.values(scores).reduce((sum, score, idx) => {
                     const item = INDICATORS.flatMap(cat => cat.items)[idx];
                     return sum + (score * (item?.weight || 0));
@@ -1258,7 +1453,7 @@
             a.click();
             URL.revokeObjectURL(url);
 
-            alert('✅ JSON数据已导出！');
+            alert('✅ JSON数据已导出！包含所有评分和今日数值。');
         }
 
         // 保存记录
@@ -1273,6 +1468,7 @@
                 date: now.toLocaleString('zh-CN'),
                 timestamp: now.getTime(),
                 scores: {...scores},
+                todayValues: {...todayValues}, // 保存今日数值
                 totalScore: Object.values(scores).reduce((sum, score, idx) => {
                     const item = INDICATORS.flatMap(cat => cat.items)[idx];
                     return sum + (score * (item?.weight || 0));
@@ -1292,13 +1488,14 @@
                     timestamp: now.getTime(),
                     date: now.toLocaleString('zh-CN'),
                     score: score,
+                    todayValue: todayValues[indicatorId], // 保存今日数值到指标历史
                     btcPrice: currentBTCPrice
                 });
                 indicatorHistory = indicatorHistory.slice(0, 50);
                 localStorage.setItem(`indicator_${indicatorId}`, JSON.stringify(indicatorHistory));
             });
 
-            alert('✅ 记录已保存！');
+            alert('✅ 记录已保存！包含今日数值和评分。');
         }
 
         // 显示指标历史
@@ -1313,6 +1510,7 @@
             document.getElementById('drawerTitle').textContent = indicatorName + ' - 历史记录';
 
             const currentScore = history[0]?.score || 0;
+            const currentValue = history[0]?.todayValue || '--';
             const avgScore = (history.reduce((sum, h) => sum + h.score, 0) / history.length).toFixed(2);
             const trend = history.length >= 2 ? (history[0].score - history[1].score) : 0;
 
@@ -1328,14 +1526,14 @@
                     </div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">平均评分</div>
-                    <div class="stat-value">${avgScore}</div>
+                    <div class="stat-label">当前数值</div>
+                    <div class="stat-value" style="color: var(--accent-color);">
+                        ${currentValue}
+                    </div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">最近变化</div>
-                    <div class="stat-value" style="color: ${trend > 0 ? 'var(--success-color)' : trend < 0 ? 'var(--danger-color)' : 'var(--text-secondary)'}">
-                        ${trend > 0 ? '+' : ''}${trend}
-                    </div>
+                    <div class="stat-label">平均评分</div>
+                    <div class="stat-value">${avgScore}</div>
                 </div>
             `;
 
@@ -1385,6 +1583,7 @@
                 <div class="history-item">
                     <div>
                         <div class="history-date">${h.date}</div>
+                        <div style="color: var(--text-secondary); font-size: 0.8rem;">数值: ${h.todayValue || '--'}</div>
                         <div style="color: var(--text-secondary); font-size: 0.8rem;">BTC: $${h.btcPrice.toLocaleString()}</div>
                     </div>
                     <div class="history-score ${h.score > 0 ? 'positive' : h.score < 0 ? 'negative' : ''}">
@@ -1489,7 +1688,7 @@
                 }
             });
 
-            document.getElementById('allRecords').innerHTML = history.map(h => `
+            document.getElementById('allRecords').innerHTML = history.map((h, index) => `
                 <div style="background: var(--bg-card); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <div style="color: var(--text-secondary);">${h.date}</div>
@@ -1497,12 +1696,74 @@
                             ${h.totalScore > 0 ? '+' : ''}${h.totalScore}
                         </div>
                     </div>
-                    <div style="display: flex; justify-content: space-between;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                         <span class="signal-badge ${h.signal.includes('强买') ? 'signal-strong-buy' : h.signal.includes('买入') ? 'signal-buy' : h.signal.includes('观望') ? 'signal-hold' : h.signal.includes('卖出') ? 'signal-sell' : 'signal-strong-sell'}">${h.signal}</span>
                         <span style="color: var(--text-secondary);">BTC: $${h.btcPrice.toLocaleString()}</span>
                     </div>
+                    <div style="margin-top: 10px;">
+                        <button onclick="showRecordDetails(${index})" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; width: 100%;">
+                            📋 查看该次记录的详细数据
+                        </button>
+                    </div>
                 </div>
             `).join('');
+
+            // 添加查看详细数据的功能
+            window.showRecordDetails = function(index) {
+                const history = JSON.parse(localStorage.getItem('btc_indicator_history') || '[]');
+                const record = history[index];
+                
+                if (!record) return;
+                
+                let detailsHtml = `
+                    <div style="background: var(--bg-card); border-radius: 10px; padding: 20px; margin-top: 15px;">
+                        <h4 style="margin-bottom: 15px;">📅 记录详情 - ${record.date}</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+                `;
+                
+                // 显示每个指标的评分和数值
+                INDICATORS.forEach(category => {
+                    category.items.forEach(item => {
+                        const score = record.scores[item.id] || 0;
+                        const todayValue = record.todayValues?.[item.id] || '--';
+                        detailsHtml += `
+                            <div style="background: var(--bg-secondary); padding: 10px; border-radius: 6px;">
+                                <div style="font-weight: 500; margin-bottom: 5px;">${item.name}</div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                    <span style="color: var(--text-secondary);">评分:</span>
+                                    <span style="color: ${score > 0 ? 'var(--success-color)' : score < 0 ? 'var(--danger-color)' : 'var(--text-secondary)'}; font-weight: bold;">
+                                        ${score > 0 ? '+' + score : score}
+                                    </span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                    <span style="color: var(--text-secondary);">数值:</span>
+                                    <span style="color: var(--accent-color);">${todayValue}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+                
+                detailsHtml += `
+                        </div>
+                        <div style="margin-top: 15px; text-align: center;">
+                            <button onclick="this.parentElement.parentElement.remove()" style="background: var(--danger-color); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer;">
+                                关闭
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // 插入到当前记录下面
+                const recordElement = document.querySelectorAll('#allRecords > div')[index];
+                if (recordElement) {
+                    const existingDetails = recordElement.querySelector('.record-details');
+                    if (existingDetails) {
+                        existingDetails.remove();
+                    }
+                    recordElement.insertAdjacentHTML('beforeend', detailsHtml);
+                }
+            };
         }
 
         // 关闭历史趋势
