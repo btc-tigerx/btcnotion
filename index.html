@@ -1279,7 +1279,7 @@
 
     <!-- 测试和状态 -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button onclick="testNotification()" class="btn btn-primary" style="width: 100%;">
+        <button onclick="testWebhookPush()" class="btn btn-primary" style="width: 100%;">
             📱 测试推送
         </button>
         <button onclick="clearAlertHistory()" class="btn btn-secondary" style="width: 100%;">
@@ -3626,6 +3626,265 @@ function updateExecutionHistory() {
         }
 
         init();
+
+        // ============================================
+// 企业微信推送功能（通过本地代理服务器）
+// ============================================
+async function testWebhookPush() {
+    console.log('🚀 testWebhookPush 函数开始执行');
+
+    // 1. 多种方式获取Webhook输入框（兼容不同的ID命名）
+    const webhookInput = document.getElementById('webhookUrl') ||
+                         document.getElementById('webhook-url') ||
+                         document.getElementById('wechatWebhook') ||
+                         document.querySelector('input[placeholder*="Webhook"]') ||
+                         document.querySelector('input[placeholder*="webhook"]') ||
+                         document.querySelector('input[placeholder*="qyapi"]');
+
+    if (!webhookInput) {
+        alert('❌ 错误：找不到Webhook输入框\n\n请检查页面是否正确加载');
+        console.error('无法定位Webhook输入框，尝试的所有选择器都失败');
+        return;
+    }
+
+    console.log('✅ 成功找到Webhook输入框:', webhookInput.id || webhookInput.className);
+
+    const webhookUrl = webhookInput.value.trim();
+    console.log('📋 获取到的Webhook地址:', webhookUrl.substring(0, 60) + '...');
+
+    // 2. 验证输入
+    if (!webhookUrl) {
+        alert('❌ 请先输入企业微信Webhook地址');
+        webhookInput.focus();
+        return;
+    }
+
+    if (!webhookUrl.includes('qyapi.weixin.qq.com')) {
+        alert('❌ Webhook地址格式错误\n\n正确格式应包含: qyapi.weixin.qq.com');
+        webhookInput.focus();
+        return;
+    }
+
+    // 3. 获取测试按钮并设置加载状态
+    let testButton = null;
+    try {
+        if (typeof event !== 'undefined' && event.target) {
+            testButton = event.target;
+        } else {
+            testButton = document.querySelector('button[onclick*="testWebhook"]') ||
+                        document.querySelector('button[onclick*="测试推送"]') ||
+                        document.querySelector('button[onclick*="推送"]') ||
+                        Array.from(document.querySelectorAll('button')).find(btn =>
+                            btn.textContent.includes('测试') ||
+                            btn.textContent.includes('推送') ||
+                            btn.textContent.includes('发送'));
+        }
+        console.log('✅ 找到测试按钮:', testButton?.textContent);
+    } catch (e) {
+        console.warn('查找测试按钮时出错:', e);
+    }
+
+    const originalText = testButton ? testButton.textContent : '';
+    if (testButton) {
+        testButton.textContent = '⏳ 发送中...';
+        testButton.disabled = true;
+        testButton.style.opacity = '0.7';
+        testButton.style.cursor = 'not-allowed';
+    }
+
+    console.log('📤 准备通过代理服务器发送消息...');
+
+    try {
+        // 4. 【核心】通过本地代理服务器发送请求
+        console.log('🔗 正在连接代理服务器: http://localhost:5000/api/wecom/send');
+
+        const response = await fetch('http://localhost:5000/api/wecom/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                webhook_url: webhookUrl,
+                content: `🎯 代理服务器测试成功！\n⏰ 发送时间: ${new Date().toLocaleString('zh-CN')}\n📊 来源: 加密货币指标看板\n🔧 通过本地代理服务器转发\n✅ 功能正常运行`
+            })
+        });
+
+        console.log('📡 代理服务器响应状态码:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP错误！状态码: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('📦 代理服务器返回完整数据:', result);
+
+        if (result.success) {
+            alert('✅ 推送成功！\n\n请检查企业微信群是否收到消息\n\n如果没收到，请检查：\n• Webhook地址是否完整正确\n• 企业微信机器人是否正常\n• 网络连接是否稳定');
+            console.log('✅ 企业微信API响应:', result.wecom_response);
+        } else {
+            alert(`❌ 推送失败\n\n错误原因: ${result.error || '未知错误'}\n\n详细信息请查看浏览器控制台(F12)`);
+            console.error('❌ 推送失败详情:', result);
+        }
+
+    } catch (error) {
+        console.error('❌ 请求代理服务器失败，详细错误:', error);
+
+        let errorMsg = '❌ 连接代理服务器失败\n\n';
+
+        if (error.message.includes('Failed to fetch') ||
+            error.message.includes('NetworkError') ||
+            error.message.includes('ERR_CONNECTION_REFUSED')) {
+            errorMsg += '可能原因:\n';
+            errorMsg += '1. 代理服务器未启动\n';
+            errorMsg += '   → 检查PyCharm终端是否显示"Running on http://127.0.0.1:5000"\n\n';
+            errorMsg += '2. 端口5000被其他程序占用\n';
+            errorMsg += '   → 尝试重启代理服务器\n\n';
+            errorMsg += '3. 防火墙阻止了本地连接\n';
+            errorMsg += '   → 检查Windows防火墙设置';
+        } else {
+            errorMsg += `具体错误: ${error.message}\n\n`;
+            errorMsg += '请按F12打开控制台查看详细日志';
+        }
+
+        alert(errorMsg);
+    } finally {
+        // 5. 恢复按钮状态
+        if (testButton) {
+            testButton.textContent = originalText;
+            testButton.disabled = false;
+            testButton.style.opacity = '1';
+            testButton.style.cursor = 'pointer';
+        }
+        console.log('🔄 推送操作完成');
+    }
+}
+
+// 兼容性：为可能的其他函数名创建别名
+
+// ============================================
+// 企业微信推送功能（通过本地代理服务器）
+// ============================================
+async function testWebhookPush() {
+    console.log('🚀 testWebhookPush 函数开始执行');
+
+    // 1. 获取Webhook输入框（多种兼容方式）
+    const webhookInput = document.getElementById('webhookUrl') ||
+                         document.getElementById('webhook-url') ||
+                         document.getElementById('wechatWebhook') ||
+                         document.querySelector('input[placeholder*="Webhook"]') ||
+                         document.querySelector('input[placeholder*="webhook"]') ||
+                         document.querySelector('input[placeholder*="qyapi"]');
+
+    if (!webhookInput) {
+        alert('❌ 错误：找不到Webhook输入框\n\n请检查页面是否正确加载');
+        console.error('无法定位Webhook输入框');
+        return;
+    }
+
+    console.log('✅ 成功找到Webhook输入框');
+
+    const webhookUrl = webhookInput.value.trim();
+    console.log('📋 获取到的Webhook地址:', webhookUrl.substring(0, 60) + '...');
+
+    // 2. 验证输入
+    if (!webhookUrl) {
+        alert('❌ 请先输入企业微信Webhook地址');
+        webhookInput.focus();
+        return;
+    }
+
+    if (!webhookUrl.includes('qyapi.weixin.qq.com')) {
+        alert('❌ Webhook地址格式错误\n\n正确格式应包含: qyapi.weixin.qq.com');
+        webhookInput.focus();
+        return;
+    }
+
+    // 3. 获取按钮并设置加载状态
+    let testButton = null;
+    try {
+        if (typeof event !== 'undefined' && event.target) {
+            testButton = event.target;
+        } else {
+            testButton = document.querySelector('button[onclick*="testWebhookPush"]');
+        }
+        console.log('✅ 找到测试按钮');
+    } catch (e) {
+        console.warn('查找按钮时出错:', e);
+    }
+
+    const originalText = testButton ? testButton.textContent : '';
+    if (testButton) {
+        testButton.textContent = '⏳ 发送中...';
+        testButton.disabled = true;
+        testButton.style.opacity = '0.7';
+    }
+
+    console.log('📤 准备通过代理服务器发送消息...');
+
+    try {
+        // 4. 【核心】通过本地代理服务器发送请求
+        console.log('🔗 连接代理服务器: http://localhost:5000/api/wecom/send');
+
+        const response = await fetch('http://localhost:5000/api/wecom/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                webhook_url: webhookUrl,
+                content: `🎯 代理服务器测试成功！\n⏰ 发送时间: ${new Date().toLocaleString('zh-CN')}\n📊 来源: 加密货币指标看板\n🔧 通过本地代理服务器转发\n✅ 功能正常运行`
+            })
+        });
+
+        console.log('📡 代理服务器响应状态码:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP错误！状态码: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('📦 代理服务器返回数据:', result);
+
+        if (result.success) {
+            alert('✅ 推送成功！\n\n请检查企业微信群是否收到消息');
+            console.log('✅ 企业微信API响应:', result.wecom_response);
+        } else {
+            alert(`❌ 推送失败\n\n错误原因: ${result.error || '未知错误'}\n\n详细信息请查看浏览器控制台(F12)`);
+            console.error('❌ 推送失败详情:', result);
+        }
+
+    } catch (error) {
+        console.error('❌ 请求失败，详细错误:', error);
+
+        let errorMsg = '❌ 连接代理服务器失败\n\n';
+
+        if (error.message.includes('Failed to fetch') ||
+            error.message.includes('NetworkError')) {
+            errorMsg += '可能原因:\n';
+            errorMsg += '1. 代理服务器未启动\n';
+            errorMsg += '   → 检查PyCharm终端是否显示"Running on http://127.0.0.1:5000"\n\n';
+            errorMsg += '2. 端口5000被占用\n';
+            errorMsg += '   → 尝试重启代理服务器\n\n';
+            errorMsg += '3. 防火墙阻止连接\n';
+            errorMsg += '   → 检查Windows防火墙设置';
+        } else {
+            errorMsg += `具体错误: ${error.message}`;
+        }
+
+        alert(errorMsg);
+    } finally {
+        // 5. 恢复按钮状态
+        if (testButton) {
+            testButton.textContent = originalText;
+            testButton.disabled = false;
+            testButton.style.opacity = '1';
+        }
+        console.log('🔄 推送操作完成');
+    }
+}
+
+console.log('✅ 企业微信推送函数已成功加载');
+
     </script>
 </body>
 </html>
