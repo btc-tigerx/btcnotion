@@ -104,10 +104,10 @@
             gap: 15px;
         }
 
-        /* ==================== 多币种价格面板样式 ==================== */
+        /* ==================== 多币种价格面板样式 - 优化版 ==================== */
 .crypto-dashboard {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     flex-wrap: wrap;
     margin-bottom: 15px;
 }
@@ -115,14 +115,15 @@
 .crypto-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 15px;
-    padding: 18px;
+    border-radius: 12px;
+    padding: 12px 15px;
     backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     flex: 1;
-    min-width: 200px;
+    min-width: 180px;
+    height: 70px; /* 固定高度，从原来的~100px压缩到70px */
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -134,16 +135,16 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
+    height: 2px;
     background: linear-gradient(135deg, var(--accent-color), #ec4899);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
 .crypto-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     border-color: var(--accent-color);
-    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
 }
 
 .crypto-card:hover::before {
@@ -165,13 +166,14 @@
 
 .crypto-logo-container {
     position: relative;
-    width: 50px;
-    height: 50px;
+    width: 40px; /* 从50px缩小到40px */
+    height: 40px;
+    flex-shrink: 0;
 }
 
 .crypto-logo {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     transition: transform 0.3s ease;
 }
@@ -181,14 +183,14 @@
 }
 
 .crypto-logo-fallback {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--accent-color), #ec4899);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
+    font-size: 1.5rem; /* 从1.8rem缩小 */
     font-weight: bold;
     color: white;
 }
@@ -197,58 +199,67 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    justify-content: center;
+    gap: 3px; /* 减小行间距 */
+    min-width: 0;
 }
 
-.crypto-name {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-weight: 500;
+/* 新增：头部行样式 - 币种简称和涨跌幅横向排列 */
+.crypto-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
 }
 
 .crypto-symbol {
-    font-size: 0.75rem;
-    color: var(--accent-color);
-    font-weight: 600;
+    font-size: 0.9rem; /* 略微增大币种简称 */
+    color: var(--text-secondary);
+    font-weight: 700;
     letter-spacing: 0.5px;
-}
-
-.crypto-price {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: var(--text-primary);
-    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .crypto-change {
-    font-size: 0.9rem;
-    padding: 4px 10px;
-    border-radius: 12px;
+    font-size: 0.75rem; /* 从0.9rem缩小到0.75rem */
+    padding: 2px 6px; /* 从4px 10px缩小 */
+    border-radius: 8px;
     font-weight: 600;
     text-align: center;
-    min-width: 70px;
+    min-width: auto; /* 取消最小宽度限制 */
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .crypto-change.positive {
-    background: rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.15);
     color: var(--success-color);
 }
 
 .crypto-change.negative {
-    background: rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.15);
     color: var(--danger-color);
 }
 
-.crypto-update-time {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    text-align: right;
-    margin-top: 8px;
-    opacity: 0.8;
+.crypto-price {
+    font-size: 1.25rem; /* 从1.4rem略微缩小 */
+    font-weight: bold;
+    color: var(--text-primary);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* 响应式设计 */
+.crypto-update-time {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-align: right;
+    margin-top: 5px;
+    opacity: 0.7;
+}
+
+/* 响应式设计优化 */
 @media (max-width: 1200px) {
     .crypto-dashboard {
         flex-direction: column;
@@ -261,22 +272,32 @@
 
 @media (max-width: 768px) {
     .crypto-card {
-        padding: 15px;
-        gap: 12px;
+        padding: 10px 12px;
+        gap: 10px;
+        height: 60px;
     }
 
     .crypto-logo,
     .crypto-logo-fallback {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
     }
 
     .crypto-price {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
 
     .crypto-logo-fallback {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
+    }
+
+    .crypto-symbol {
+        font-size: 0.85rem;
+    }
+
+    .crypto-change {
+        font-size: 0.7rem;
+        padding: 1px 4px;
     }
 }
 
@@ -920,7 +941,7 @@
     <div class="container">
         <div class="header">
             <h1>🚀 ₿ 综合指标系统 v4.0</h1>
-            <!-- 多币种价格监控面板 -->
+           <!-- 多币种价格监控面板 -->
 <div class="crypto-dashboard">
     <!-- BTC 卡片 -->
     <div class="crypto-card btc-card">
@@ -932,10 +953,11 @@
             <div class="crypto-logo-fallback" style="display:none;">₿</div>
         </div>
         <div class="crypto-info">
-            <div class="crypto-name">Bitcoin</div>
-            <div class="crypto-symbol">BTC</div>
+            <div class="crypto-header-row">
+                <span class="crypto-symbol">BTC</span>
+                <span class="crypto-change" id="btcChange">--</span>
+            </div>
             <div class="crypto-price" id="btcPrice">加载中...</div>
-            <div class="crypto-change" id="btcChange">--</div>
         </div>
     </div>
 
@@ -949,10 +971,11 @@
             <div class="crypto-logo-fallback" style="display:none;">Ξ</div>
         </div>
         <div class="crypto-info">
-            <div class="crypto-name">Ethereum</div>
-            <div class="crypto-symbol">ETH</div>
+            <div class="crypto-header-row">
+                <span class="crypto-symbol">ETH</span>
+                <span class="crypto-change" id="ethChange">--</span>
+            </div>
             <div class="crypto-price" id="ethPrice">加载中...</div>
-            <div class="crypto-change" id="ethChange">--</div>
         </div>
     </div>
 
@@ -966,15 +989,17 @@
             <div class="crypto-logo-fallback" style="display:none;">🔶</div>
         </div>
         <div class="crypto-info">
-            <div class="crypto-name">BNB Chain</div>
-            <div class="crypto-symbol">BNB</div>
+            <div class="crypto-header-row">
+                <span class="crypto-symbol">BNB</span>
+                <span class="crypto-change" id="bnbChange">--</span>
+            </div>
             <div class="crypto-price" id="bnbPrice">加载中...</div>
-            <div class="crypto-change" id="bnbChange">--</div>
         </div>
     </div>
 </div>
 
 <!-- 统一更新时间显示 -->
+<div class="crypto-update-time" id="lastUpdate">数据加载中...</div>
 <div class="crypto-update-time" id="lastUpdate">数据加载中...</div>
 
             <!-- 价格时间双重雷达 -->
