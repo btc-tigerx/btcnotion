@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTC综合指标系统 v3.1 (分享版)</title>
+    <title>BTC综合指标系统 v4.1 (分享版)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
@@ -103,6 +103,183 @@
             align-items: center;
             gap: 15px;
         }
+
+        /* ==================== 多币种价格面板样式 ==================== */
+.crypto-dashboard {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.crypto-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 18px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+    min-width: 200px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.crypto-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, var(--accent-color), #ec4899);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.crypto-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-color);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+
+.crypto-card:hover::before {
+    opacity: 1;
+}
+
+/* 各币种特色边框 */
+.btc-card:hover::before {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.eth-card:hover::before {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+}
+
+.bnb-card:hover::before {
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+}
+
+.crypto-logo-container {
+    position: relative;
+    width: 50px;
+    height: 50px;
+}
+
+.crypto-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.crypto-card:hover .crypto-logo {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.crypto-logo-fallback {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-color), #ec4899);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: white;
+}
+
+.crypto-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.crypto-name {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.crypto-symbol {
+    font-size: 0.75rem;
+    color: var(--accent-color);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.crypto-price {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.crypto-change {
+    font-size: 0.9rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 70px;
+    transition: all 0.2s ease;
+}
+
+.crypto-change.positive {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--success-color);
+}
+
+.crypto-change.negative {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger-color);
+}
+
+.crypto-update-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: right;
+    margin-top: 8px;
+    opacity: 0.8;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .crypto-dashboard {
+        flex-direction: column;
+    }
+
+    .crypto-card {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .crypto-card {
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .crypto-logo,
+    .crypto-logo-fallback {
+        width: 40px;
+        height: 40px;
+    }
+
+    .crypto-price {
+        font-size: 1.2rem;
+    }
+
+    .crypto-logo-fallback {
+        font-size: 1.5rem;
+    }
+}
+
 
         .btc-price {
             font-size: 2rem;
@@ -742,14 +919,95 @@
 
     <div class="container">
         <div class="header">
-            <h1>🚀 ₿综合指标系统 v3.1</h1>
-            <div class="btc-price-card">
-                <div>
-                    <div class="btc-price" id="btcPrice">加载中...</div>
-                    <div class="btc-change" id="btcChange">--</div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 5px;" id="lastUpdate"></div>
-                </div>
-            </div>
+            <h1>🚀 ₿ 综合指标系统 v4.0</h1>
+            <!-- 多币种价格监控面板 -->
+<div class="crypto-dashboard">
+    <!-- BTC 卡片 -->
+    <div class="crypto-card btc-card">
+        <div class="crypto-logo-container">
+            <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=026"
+                 class="crypto-logo"
+                 alt="BTC"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="crypto-logo-fallback" style="display:none;">₿</div>
+        </div>
+        <div class="crypto-info">
+            <div class="crypto-name">Bitcoin</div>
+            <div class="crypto-symbol">BTC</div>
+            <div class="crypto-price" id="btcPrice">加载中...</div>
+            <div class="crypto-change" id="btcChange">--</div>
+        </div>
+    </div>
+
+    <!-- ETH 卡片 -->
+    <div class="crypto-card eth-card">
+        <div class="crypto-logo-container">
+            <img src="https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=026"
+                 class="crypto-logo"
+                 alt="ETH"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="crypto-logo-fallback" style="display:none;">Ξ</div>
+        </div>
+        <div class="crypto-info">
+            <div class="crypto-name">Ethereum</div>
+            <div class="crypto-symbol">ETH</div>
+            <div class="crypto-price" id="ethPrice">加载中...</div>
+            <div class="crypto-change" id="ethChange">--</div>
+        </div>
+    </div>
+
+    <!-- BNB 卡片 -->
+    <div class="crypto-card bnb-card">
+        <div class="crypto-logo-container">
+            <img src="https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=026"
+                 class="crypto-logo"
+                 alt="BNB"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="crypto-logo-fallback" style="display:none;">🔶</div>
+        </div>
+        <div class="crypto-info">
+            <div class="crypto-name">BNB Chain</div>
+            <div class="crypto-symbol">BNB</div>
+            <div class="crypto-price" id="bnbPrice">加载中...</div>
+            <div class="crypto-change" id="bnbChange">--</div>
+        </div>
+    </div>
+</div>
+
+<!-- 统一更新时间显示 -->
+<div class="crypto-update-time" id="lastUpdate">数据加载中...</div>
+
+            <!-- 价格时间双重雷达 -->
+<div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%); border: 1px solid var(--accent-color); border-radius: 15px; padding: 15px; margin: 15px 0; width: 100%;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; align-items: center;">
+        <div style="text-align: center;">
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">🎯 目标价格区间</div>
+            <div style="font-size: 1.2rem; font-weight: bold; color: var(--success-color);">$35K - $50K</div>
+            <div id="priceDistance" style="font-size: 0.9rem; color: var(--warning-color); margin-top: 5px;">计算中...</div>
+        </div>
+
+        <div style="text-align: center;">
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">⏰ 目标时间窗口</div>
+            <div style="font-size: 1.2rem; font-weight: bold; color: var(--accent-color);">2026 Q4 - 2027 Q1</div>
+            <div id="timeDistance" style="font-size: 0.9rem; color: var(--warning-color); margin-top: 5px;">计算中...</div>
+        </div>
+
+        <div style="text-align: center;">
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">🚀 止盈目标</div>
+            <div style="font-size: 1.2rem; font-weight: bold; color: var(--danger-color);">$126K (50%)</div>
+            <div id="profitDistance" style="font-size: 0.9rem; color: var(--danger-color); margin-top: 5px;">计算中...</div>
+        </div>
+    </div>
+
+    <!-- 综合状态指示器 -->
+    <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 600;">当前阶段：</span>
+            <span id="currentPhase" style="padding: 5px 15px; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">分析中...</span>
+        </div>
+    </div>
+</div>
+
             <div class="controls">
                 <button class="btn btn-share" onclick="openShareModal()">🔗 分享快照</button>
                 <button class="btn btn-primary" onclick="saveRecord()">💾 保存记录</button>
@@ -773,6 +1031,79 @@
                         <div id="categoryScores"></div>
                     </div>
                 </div>
+                <!-- 抄底战略管理中心 -->
+<div class="score-card" style="border: 2px solid var(--success-color);">
+    <h3>🎯 2026抄底战略中心</h3>
+
+    <!-- 战略参数配置 -->
+    <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-secondary);">总身家(U)</label>
+                <input type="number" id="totalWealth" placeholder="总资产"
+                       style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary);"
+                       onchange="updateStrategyPlan()">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-secondary);">投入比例(%)</label>
+                <input type="number" id="investRatio" value="90"
+                       style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary);"
+                       onchange="updateStrategyPlan()">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-secondary);">已投入(U)</label>
+                <input type="number" id="currentInvested" placeholder="0"
+                       style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary);"
+                       onchange="updateStrategyPlan()">
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-secondary);">平均成本</label>
+                <input type="number" id="avgCost" placeholder="0"
+                       style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary);"
+                       onchange="updateStrategyPlan()">
+            </div>
+        </div>
+    </div>
+
+    <!-- 战略状态显示 -->
+    <div id="strategyStatus" style="margin: 15px 0;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span style="color: var(--text-secondary);">建仓进度</span>
+            <span id="buildProgress" style="font-weight: bold; color: var(--accent-color);">0%</span>
+        </div>
+        <div style="background: var(--bg-secondary); height: 20px; border-radius: 10px; overflow: hidden; margin-bottom: 15px;">
+            <div id="progressBar" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div style="text-align: center; padding: 10px; background: var(--bg-secondary); border-radius: 8px;">
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">计划投入</div>
+                <div id="plannedInvest" style="font-size: 1.1rem; font-weight: bold; color: var(--accent-color);">$0</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: var(--bg-secondary); border-radius: 8px;">
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">剩余子弹</div>
+                <div id="remainingBullet" style="font-size: 1.1rem; font-weight: bold; color: var(--success-color);">$0</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: var(--bg-secondary); border-radius: 8px;">
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">当前市值</div>
+                <div id="currentValue" style="font-size: 1.1rem; font-weight: bold; color: var(--warning-color);">$0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作建议 -->
+    <div id="actionAdvice" style="background: rgba(139, 92, 246, 0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
+        <div style="font-weight: 600; margin-bottom: 10px; color: var(--accent-color);">💡 当前操作建议</div>
+        <div id="adviceContent" style="line-height: 1.6;">等待配置战略参数...</div>
+    </div>
+
+    <button onclick="recordInvestment()" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+        📝 记录本次投入
+    </button>
+</div>
 
                 <div class="chart-container">
                     <canvas id="radarChart"></canvas>
@@ -780,6 +1111,40 @@
             </div>
         </div>
     </div>
+
+    <!-- 止盈纪律执行器 -->
+<div class="score-card" style="border: 2px solid var(--danger-color); margin-top: 20px;">
+    <h3 style="color: var(--danger-color);">🛑 止盈纪律执行器</h3>
+
+    <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
+        <div style="text-align: center; margin-bottom: 15px;">
+            <div style="font-size: 2rem; font-weight: bold; color: var(--danger-color);">$126,000</div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary);">第一止盈价 - 卖出50%仓位</div>
+        </div>
+
+        <div id="sellAlert" style="padding: 15px; border-radius: 8px; text-align: center;">
+            <!-- 动态显示卖出提醒 -->
+        </div>
+
+        <div style="margin-top: 15px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+            <div style="font-weight: 600; margin-bottom: 8px;">执行纪律：</div>
+            <div>• 价格达到 $126,000 立即卖出50%</div>
+            <div>• 不受市场情绪影响</div>
+            <div>• 剩余50%设置更高目标或持有</div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div style="text-align: center; padding: 10px; background: var(--bg-secondary); border-radius: 8px;">
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">预期收益倍数</div>
+            <div id="expectedMultiple" style="font-size: 1.3rem; font-weight: bold; color: var(--success-color);">0x</div>
+        </div>
+        <div style="text-align: center; padding: 10px; background: var(--bg-secondary); border-radius: 8px;">
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">距离目标</div>
+            <div id="toTarget" style="font-size: 1.3rem; font-weight: bold; color: var(--warning-color);">--%</div>
+        </div>
+    </div>
+</div>
 
     <!-- 分享弹窗 -->
     <div class="modal-overlay" id="shareModal">
@@ -1820,27 +2185,448 @@
         }
 
         // 获取BTC价格
-        async function fetchBTCPrice() {
-            try {
-                const response = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
-                const data = await response.json();
-                
-                currentBTCPrice = parseFloat(data.lastPrice);
-                const change = parseFloat(data.priceChangePercent);
-                
-                document.getElementById('btcPrice').textContent = '$' + currentBTCPrice.toLocaleString('en-US', { minimumFractionDigits: 0 });
-                
-                const changeElement = document.getElementById('btcChange');
-                changeElement.textContent = (change > 0 ? '+' : '') + change.toFixed(2) + '%';
-                changeElement.className = 'btc-change ' + (change >= 0 ? 'positive' : 'negative');
-                
-                document.getElementById('lastUpdate').textContent = '更新: ' + new Date().toLocaleTimeString();
-            } catch (error) {
-                console.error('获取BTC价格失败:', error);
-                document.getElementById('btcPrice').textContent = '加载失败';
-            }
+        // 获取多币种价格数据
+async function fetchBTCPrice() {
+    try {
+        // 并行获取三个币种的24小时价格数据
+        const [btcResponse, ethResponse, bnbResponse] = await Promise.all([
+            fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'),
+            fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT'),
+            fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BNBUSDT')
+        ]);
+
+        const [btcData, ethData, bnbData] = await Promise.all([
+            btcResponse.json(),
+            ethResponse.json(),
+            bnbResponse.json()
+        ]);
+
+        // ===== 更新 BTC 数据 =====
+        currentBTCPrice = parseFloat(btcData.lastPrice);
+        const btcChange = parseFloat(btcData.priceChangePercent);
+
+        const btcPriceEl = document.getElementById('btcPrice');
+        const btcChangeEl = document.getElementById('btcChange');
+
+        if (btcPriceEl) {
+            btcPriceEl.textContent = '$' + currentBTCPrice.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
         }
 
+        if (btcChangeEl) {
+            btcChangeEl.textContent = (btcChange > 0 ? '+' : '') + btcChange.toFixed(2) + '%';
+            btcChangeEl.className = 'crypto-change ' + (btcChange >= 0 ? 'positive' : 'negative');
+        }
+
+        // ===== 更新 ETH 数据 =====
+        const ethPrice = parseFloat(ethData.lastPrice);
+        const ethChange = parseFloat(ethData.priceChangePercent);
+
+        const ethPriceEl = document.getElementById('ethPrice');
+        const ethChangeEl = document.getElementById('ethChange');
+
+        if (ethPriceEl) {
+            ethPriceEl.textContent = '$' + ethPrice.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        if (ethChangeEl) {
+            ethChangeEl.textContent = (ethChange > 0 ? '+' : '') + ethChange.toFixed(2) + '%';
+            ethChangeEl.className = 'crypto-change ' + (ethChange >= 0 ? 'positive' : 'negative');
+        }
+
+        // ===== 更新 BNB 数据 =====
+        const bnbPrice = parseFloat(bnbData.lastPrice);
+        const bnbChange = parseFloat(bnbData.priceChangePercent);
+
+        const bnbPriceEl = document.getElementById('bnbPrice');
+        const bnbChangeEl = document.getElementById('bnbChange');
+
+        if (bnbPriceEl) {
+            bnbPriceEl.textContent = '$' + bnbPrice.toLocaleString('en-US', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            });
+        }
+
+        if (bnbChangeEl) {
+            bnbChangeEl.textContent = (bnbChange > 0 ? '+' : '') + bnbChange.toFixed(2) + '%';
+            bnbChangeEl.className = 'crypto-change ' + (bnbChange >= 0 ? 'positive' : 'negative');
+        }
+
+        // 更新时间显示
+        const lastUpdateEl = document.getElementById('lastUpdate');
+        if (lastUpdateEl) {
+            lastUpdateEl.textContent = '最后更新: ' + new Date().toLocaleTimeString('zh-CN');
+        }
+
+        // 触发依赖BTC价格的战略系统更新
+        updatePriceTimeRadar();
+        if (document.getElementById('totalWealth')?.value) {
+            updateStrategyPlan();
+        }
+
+    } catch (error) {
+        console.error('获取加密货币价格失败:', error);
+
+        // 优雅的错误处理
+        const errorElements = ['btcPrice', 'ethPrice', 'bnbPrice'];
+        errorElements.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = '加载失败';
+        });
+
+        const lastUpdateEl = document.getElementById('lastUpdate');
+        if (lastUpdateEl) {
+            lastUpdateEl.textContent = '数据加载失败，请检查网络连接';
+        }
+    }
+}
+// ==================== 2026抄底战略管理系统 ====================
+
+// 战略计划管理
+function updateStrategyPlan() {
+    const totalWealth = parseFloat(document.getElementById('totalWealth')?.value) || 0;
+    const investRatio = parseFloat(document.getElementById('investRatio')?.value) || 90;
+    const currentInvested = parseFloat(document.getElementById('currentInvested')?.value) || 0;
+    const avgCost = parseFloat(document.getElementById('avgCost')?.value) || 0;
+
+    // 保存到本地存储
+    const strategyData = {
+        totalWealth,
+        investRatio,
+        currentInvested,
+        avgCost,
+        lastUpdate: new Date().toISOString()
+    };
+    localStorage.setItem('strategy_2026_plan', JSON.stringify(strategyData));
+
+    // 计算关键指标
+    const plannedInvest = totalWealth * (investRatio / 100);
+    const remainingBullet = Math.max(plannedInvest - currentInvested, 0);
+    const buildProgress = plannedInvest > 0 ? (currentInvested / plannedInvest * 100) : 0;
+    const currentValue = avgCost > 0 && currentInvested > 0 ?
+        (currentInvested / avgCost) * currentBTCPrice : 0;
+
+    // 更新UI显示（加入安全检查）
+    const plannedEl = document.getElementById('plannedInvest');
+    const remainingEl = document.getElementById('remainingBullet');
+    const currentValueEl = document.getElementById('currentValue');
+    const progressEl = document.getElementById('buildProgress');
+    const progressBarEl = document.getElementById('progressBar');
+
+    if (plannedEl) plannedEl.textContent = '$' + plannedInvest.toLocaleString();
+    if (remainingEl) remainingEl.textContent = '$' + remainingBullet.toLocaleString();
+    if (currentValueEl) currentValueEl.textContent = '$' + currentValue.toLocaleString();
+    if (progressEl) progressEl.textContent = buildProgress.toFixed(1) + '%';
+    if (progressBarEl) progressBarEl.style.width = Math.min(buildProgress, 100) + '%';
+
+    // 生成操作建议
+    generateActionAdvice(remainingBullet, buildProgress, currentBTCPrice);
+
+    // 更新止盈计算
+    updateProfitTargets(avgCost, currentInvested);
+}
+
+// 生成操作建议
+function generateActionAdvice(remainingBullet, buildProgress, currentPrice) {
+    const totalScore = parseInt(document.getElementById('totalScore')?.textContent) || 0;
+    const targetLow = 35000;
+    const targetHigh = 50000;
+
+    let advice = '';
+    let suggestedAmount = 0;
+
+    // 价格区间判断
+    if (currentPrice > targetHigh) {
+        advice = `🚫 <strong>价格偏高，暂停买入</strong><br>当前 $${currentPrice.toLocaleString()} > 目标区间上限 $${targetHigh.toLocaleString()}<br><span style="color: var(--text-secondary);">继续等待更好的机会</span>`;
+    } else if (currentPrice >= targetLow && currentPrice <= targetHigh) {
+        // 在目标区间内
+        let positionPercent = 0;
+        if (totalScore >= 40) {
+            positionPercent = 25;
+            advice = `🚀 <strong>强买入信号 - 目标区间内</strong><br>`;
+        } else if (totalScore >= 20) {
+            positionPercent = 15;
+            advice = `📈 <strong>买入信号 - 目标区间内</strong><br>`;
+        } else if (totalScore >= 10) {
+            positionPercent = 8;
+            advice = `👀 <strong>小仓试探 - 目标区间内</strong><br>`;
+        } else {
+            advice = `⏸️ <strong>观望</strong><br>价格在目标区间，但指标偏弱，谨慎操作<br>`;
+        }
+
+        if (positionPercent > 0) {
+            suggestedAmount = remainingBullet * (positionPercent / 100);
+            advice += `建议投入: <strong style="color: var(--success-color);">$${suggestedAmount.toLocaleString()}</strong> (剩余${positionPercent}%)`;
+        }
+    } else {
+        // 低于目标区间，加大力度
+        const discount = ((targetHigh - currentPrice) / targetHigh * 100).toFixed(1);
+        let positionPercent = 0;
+
+        if (totalScore >= 40) {
+            positionPercent = 35;
+            advice = `💎 <strong>黄金抄底机会！</strong><br>`;
+        } else if (totalScore >= 20) {
+            positionPercent = 25;
+            advice = `🎯 <strong>优质抄底机会</strong><br>`;
+        } else {
+            positionPercent = 15;
+            advice = `📍 <strong>可以抄底</strong><br>`;
+        }
+
+        suggestedAmount = remainingBullet * (positionPercent / 100);
+        advice += `当前价格比目标区间低 ${discount}%<br>建议投入: <strong style="color: var(--success-color);">$${suggestedAmount.toLocaleString()}</strong> (剩余${positionPercent}%)`;
+    }
+
+    // 进度提醒
+    if (buildProgress > 85) {
+        advice += `<br><br>⚠️ 已使用 ${buildProgress.toFixed(1)}% 计划资金，注意保留机动性`;
+    } else if (buildProgress > 60) {
+        advice += `<br><br>✅ 已使用 ${buildProgress.toFixed(1)}% 计划资金，节奏良好`;
+    } else if (buildProgress < 20 && currentPrice < targetHigh) {
+        advice += `<br><br>🔥 建仓进度偏慢，可考虑适当加快节奏`;
+    }
+
+    const adviceEl = document.getElementById('adviceContent');
+    if (adviceEl) adviceEl.innerHTML = advice;
+}
+
+// 更新价格时间雷达
+function updatePriceTimeRadar() {
+    const currentPrice = currentBTCPrice;
+    const targetLow = 35000;
+    const targetHigh = 50000;
+    const profitTarget = 126000;
+
+    // 价格距离计算
+    const priceDistanceEl = document.getElementById('priceDistance');
+    if (priceDistanceEl) {
+        let priceStatus = '';
+        if (currentPrice <= targetHigh && currentPrice >= targetLow) {
+            priceStatus = `✅ 在目标区间内`;
+            priceDistanceEl.style.color = 'var(--success-color)';
+        } else if (currentPrice > targetHigh) {
+            const overPercent = ((currentPrice - targetHigh) / targetHigh * 100).toFixed(1);
+            priceStatus = `📈 高出区间 ${overPercent}%`;
+            priceDistanceEl.style.color = 'var(--warning-color)';
+        } else {
+            const underPercent = ((targetLow - currentPrice) / targetLow * 100).toFixed(1);
+            priceStatus = `💎 低于区间 ${underPercent}%`;
+            priceDistanceEl.style.color = 'var(--success-color)';
+        }
+        priceDistanceEl.textContent = priceStatus;
+    }
+
+    // 时间距离计算
+    const timeDistanceEl = document.getElementById('timeDistance');
+    if (timeDistanceEl) {
+        const targetStartDate = new Date('2026-10-01');
+        const targetEndDate = new Date('2027-03-31');
+        const now = new Date();
+
+        let timeStatus = '';
+        if (now >= targetStartDate && now <= targetEndDate) {
+            timeStatus = `🔥 窗口期内！`;
+            timeDistanceEl.style.color = 'var(--success-color)';
+        } else if (now < targetStartDate) {
+            const daysToStart = Math.ceil((targetStartDate - now) / (1000 * 60 * 60 * 24));
+            timeStatus = `还有 ${daysToStart} 天`;
+            timeDistanceEl.style.color = 'var(--accent-color)';
+        } else {
+            timeStatus = `⏰ 窗口期已过`;
+            timeDistanceEl.style.color = 'var(--text-secondary)';
+        }
+        timeDistanceEl.textContent = timeStatus;
+    }
+
+    // 止盈距离计算
+    const profitDistanceEl = document.getElementById('profitDistance');
+    if (profitDistanceEl) {
+        const toProfitPercent = ((profitTarget - currentPrice) / currentPrice * 100).toFixed(1);
+        let profitStatus = '';
+        if (currentPrice >= profitTarget) {
+            profitStatus = `🚨 已达目标！`;
+            profitDistanceEl.style.color = 'var(--danger-color)';
+            profitDistanceEl.style.fontWeight = 'bold';
+        } else {
+            profitStatus = `需涨 ${toProfitPercent}%`;
+        }
+        profitDistanceEl.textContent = profitStatus;
+    }
+
+    // 综合阶段判断
+    updateCurrentPhase(currentPrice, new Date(), new Date('2026-10-01'), new Date('2027-03-31'));
+}
+
+// 更新当前阶段
+function updateCurrentPhase(currentPrice, now, targetStart, targetEnd) {
+    const phaseElement = document.getElementById('currentPhase');
+    if (!phaseElement) return;
+
+    let phase = '';
+    let bgColor = '';
+
+    if (now < targetStart) {
+        if (currentPrice > 50000) {
+            phase = '等待期 - 价格偏高';
+            bgColor = 'rgba(245, 158, 11, 0.3)';
+        } else {
+            phase = '提前机会期';
+            bgColor = 'rgba(16, 185, 129, 0.3)';
+        }
+    } else if (now >= targetStart && now <= targetEnd) {
+        if (currentPrice <= 50000 && currentPrice >= 35000) {
+            phase = '黄金建仓期';
+            bgColor = 'rgba(16, 185, 129, 0.5)';
+        } else if (currentPrice < 35000) {
+            phase = '超级抄底期';
+            bgColor = 'rgba(239, 68, 68, 0.3)';
+        } else {
+            phase = '窗口期 - 价格偏高';
+            bgColor = 'rgba(245, 158, 11, 0.3)';
+        }
+    } else {
+        phase = '持有观察期';
+        bgColor = 'rgba(139, 92, 246, 0.3)';
+    }
+
+    phaseElement.textContent = phase;
+    phaseElement.style.background = bgColor;
+}
+
+// 更新止盈目标
+function updateProfitTargets(avgCost, totalInvested) {
+    const profitTarget = 126000;
+
+    const expectedMultipleEl = document.getElementById('expectedMultiple');
+    const toTargetEl = document.getElementById('toTarget');
+
+    if (avgCost > 0) {
+        const multiple = (profitTarget / avgCost).toFixed(1);
+        if (expectedMultipleEl) expectedMultipleEl.textContent = multiple + 'x';
+
+        const toTargetPercent = ((profitTarget - currentBTCPrice) / currentBTCPrice * 100).toFixed(1);
+        if (toTargetEl) toTargetEl.textContent = toTargetPercent + '%';
+
+        // 更新卖出提醒
+        updateSellAlert(currentBTCPrice, profitTarget, avgCost, totalInvested);
+    }
+}
+
+// 更新卖出提醒
+function updateSellAlert(currentPrice, target, avgCost, totalInvested) {
+    const alertDiv = document.getElementById('sellAlert');
+    if (!alertDiv) return;
+
+    let alertHTML = '';
+    let bgColor = 'rgba(139, 92, 246, 0.1)';
+
+    if (currentPrice >= target) {
+        bgColor = 'rgba(239, 68, 68, 0.3)';
+        alertHTML = `
+            <div style="font-size: 2rem; margin-bottom: 10px;">🚨🚨🚨</div>
+            <div style="font-weight: bold; color: var(--danger-color); font-size: 1.2rem; margin-bottom: 10px;">
+                立即执行止盈！
+            </div>
+            <div style="color: var(--text-primary);">
+                卖出50%仓位，约 $${(totalInvested * 0.5).toLocaleString()}
+            </div>
+        `;
+    } else {
+        const toTargetPercent = ((target - currentPrice) / currentPrice * 100).toFixed(1);
+        const currentMultiple = avgCost > 0 ? (currentPrice / avgCost).toFixed(2) : 0;
+
+        alertHTML = `
+            <div style="margin-bottom: 10px;">
+                <div style="color: var(--text-secondary); font-size: 0.9rem;">当前收益倍数</div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: var(--success-color);">${currentMultiple}x</div>
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                距离止盈目标还需上涨 ${toTargetPercent}%
+            </div>
+        `;
+    }
+
+    alertDiv.style.background = bgColor;
+    alertDiv.innerHTML = alertHTML;
+}
+
+// 记录投资操作
+function recordInvestment() {
+    if (isReadonlyMode) {
+        alert('⚠️ 只读模式：无法记录投资');
+        return;
+    }
+
+    const amount = prompt('请输入本次投入金额（USDT）:');
+    if (!amount || isNaN(amount)) return;
+
+    const note = prompt('备注（可选）:', '');
+
+    // 记录到历史
+    const investment = {
+        timestamp: new Date().getTime(),
+        date: new Date().toLocaleString('zh-CN'),
+        amount: parseFloat(amount),
+        btcPrice: currentBTCPrice,
+        btcAmount: parseFloat(amount) / currentBTCPrice,
+        totalScore: parseInt(document.getElementById('totalScore')?.textContent) || 0,
+        note: note || ''
+    };
+
+    let history = JSON.parse(localStorage.getItem('investment_history_2026') || '[]');
+    history.unshift(investment);
+    localStorage.setItem('investment_history_2026', JSON.stringify(history));
+
+    // 更新当前已投入金额
+    const currentInvestedEl = document.getElementById('currentInvested');
+    if (currentInvestedEl) {
+        const currentInvested = parseFloat(currentInvestedEl.value) || 0;
+        const newInvested = currentInvested + parseFloat(amount);
+        currentInvestedEl.value = newInvested;
+
+        // 重新计算平均成本
+        const totalBTCAmount = history.reduce((sum, inv) => sum + inv.btcAmount, 0);
+        const totalUSDAmount = history.reduce((sum, inv) => sum + inv.amount, 0);
+        const newAvgCost = totalBTCAmount > 0 ? totalUSDAmount / totalBTCAmount : 0;
+
+        const avgCostEl = document.getElementById('avgCost');
+        if (avgCostEl) avgCostEl.value = newAvgCost.toFixed(2);
+
+        updateStrategyPlan();
+    }
+
+    alert(`✅ 投资记录已保存！\n金额: $${amount}\n价格: $${currentBTCPrice.toLocaleString()}\n数量: ${investment.btcAmount.toFixed(8)} BTC`);
+}
+
+// 加载战略计划
+function loadStrategyPlan() {
+    const saved = localStorage.getItem('strategy_2026_plan');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            const totalWealthEl = document.getElementById('totalWealth');
+            const investRatioEl = document.getElementById('investRatio');
+            const currentInvestedEl = document.getElementById('currentInvested');
+            const avgCostEl = document.getElementById('avgCost');
+
+            if (totalWealthEl) totalWealthEl.value = data.totalWealth || '';
+            if (investRatioEl) investRatioEl.value = data.investRatio || 90;
+            if (currentInvestedEl) currentInvestedEl.value = data.currentInvested || '';
+            if (avgCostEl) avgCostEl.value = data.avgCost || '';
+
+            updateStrategyPlan();
+        } catch (e) {
+            console.error('加载战略计划失败:', e);
+        }
+    }
+}
         // 初始化
         function init() {
             // 检查只读模式
@@ -1859,6 +2645,9 @@
             if (!isReadonlyMode) {
                 setInterval(fetchBTCPrice, 30000);
             }
+            // 加载2026战略系统
+    loadStrategyPlan();
+    updatePriceTimeRadar();
         }
 
         init();
